@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BlueMind - Educativo</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --theme-color: #3B82F6;
+            --dark: #0f172a;
+            --light: #F8FAFC;
+            --white: #ffffff;
+            --shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--light);
+            height: 100vh;
+            overflow: hidden;
+            color: var(--dark);
+        }
+
+        /* GESTOR DE PANTALLAS */
+        .screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            overflow-y: auto;
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(1.05);
+            z-index: 1;
+            background: var(--light);
+        }
+
+        .screen.active {
+            opacity: 1;
+            pointer-events: all;
+            transform: scale(1);
+            z-index: 10;
+        }
+
+        /* PANTALLA LOGIN */
+        #screen-login {
+            background: url('https://images.unsplash.com/photo-1472214103451-9374bd1c798e?q=80&w=2070&auto=format&fit=crop') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #screen-login::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(5px);
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            padding: 40px 30px;
+            border-radius: 35px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            text-align: center;
+            width: 90%;
+            max-width: 380px;
+            position: relative;
+            z-index: 2;
+            color: white;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .avatar-uploader {
+            width: 110px;
+            height: 110px;
+            margin: 0 auto 25px;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.8);
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .avatar-uploader img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .input-glass {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 18px;
+            border-radius: 20px;
+            width: 100%;
+            color: white;
+            font-size: 1.1rem;
+            text-align: center;
+            margin-bottom: 20px;
+            outline: none;
+        }
+
+        .input-glass::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .btn-main {
+            background: white;
+            color: var(--dark);
+            border: none;
+            padding: 18px 40px;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 1rem;
+            width: 100%;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+        }
+
+        /* DASHBOARD */
+        .header {
+            padding: 20px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(248, 250, 252, 0.9);
+            backdrop-filter: blur(10px);
+        }
+
+        .user-pill {
+            background: white;
+            padding: 6px 6px 6px 15px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+        }
+
+        .user-pill img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .grid-emotions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto 80px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 25px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.03);
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .card[data-e="Felicidad"]:hover {
+            border-color: #F59E0B;
+            background: #FFFBEB;
+        }
+
+        .card[data-e="Enojo"]:hover {
+            border-color: #EF4444;
+            background: #FEF2F2;
+        }
+
+        .card[data-e="Tristeza"]:hover {
+            border-color: #3B82F6;
+            background: #EFF6FF;
+        }
+
+        .card[data-e="Ansiedad"]:hover {
+            border-color: #8B5CF6;
+            background: #F5F3FF;
+        }
+
+        .card[data-e="Estrés"]:hover {
+            border-color: #14B8A6;
+            background: #F0FDFA;
+        }
+
+        /* Botón de Info en la Tarjeta */
+        .info-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background: #f1f5f9;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #64748b;
+            transition: 0.2s;
+        }
+
+        .info-btn:hover {
+            background: var(--dark);
+            color: white;
+        }
+
+        /* MODAL DE INFORMACIÓN */
+        .modal-info-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.3s;
+            padding: 20px;
+        }
+
+        .modal-info-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-info-card {
+            background: white;
+            border-radius: 30px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            transform: translateY(20px);
+            transition: 0.3s;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-info-overlay.open .modal-info-card {
+            transform: translateY(0);
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+
+        .modal-subtitle {
+            font-weight: 700;
+            color: #64748b;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 20px;
+            margin-bottom: 5px;
+        }
+
+        .modal-text {
+            color: #334155;
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        .close-modal-btn {
+            background: var(--dark);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 15px;
+            border-radius: 15px;
+            font-weight: bold;
+            margin-top: 30px;
+            cursor: pointer;
+        }
+
+        /* INMERSIÓN */
+        #screen-immersion {
+            transition: background 0.5s ease;
+        }
+
+        .immersion-header {
+            height: 40vh;
+            position: relative;
+            border-radius: 0 0 40px 40px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px -20px var(--theme-color);
+        }
+
+        .immersion-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.5s ease;
+        }
+
+        .header-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), transparent, rgba(0, 0, 0, 0.6));
+        }
+
+        .immersion-content {
+            max-width: 600px;
+            margin: -60px auto 0;
+            padding: 0 25px 40px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .level-card {
+            background: white;
+            padding: 30px;
+            border-radius: 30px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        input[type=range] {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 12px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            margin: 25px 0;
+            outline: none;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 32px;
+            height: 32px;
+            background: var(--theme-color);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.8), 0 0 20px var(--theme-color);
+            transition: background 0.3s;
+        }
+
+        .audio-player-box {
+            background: var(--dark);
+            color: white;
+            padding: 20px;
+            border-radius: 25px;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            border-left: 5px solid var(--theme-color);
+        }
+
+        .play-btn {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: var(--theme-color);
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            cursor: pointer;
+            flex-shrink: 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 2;
+        }
+
+        .video-btn {
+            display: block;
+            width: 100%;
+            padding: 18px;
+            margin-top: 15px;
+            background: white;
+            border: 2px solid var(--theme-color);
+            color: var(--theme-color);
+            font-weight: 700;
+            text-align: center;
+            border-radius: 20px;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            z-index: 20;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* MENU LATERAL */
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 99;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.3s;
+        }
+
+        .menu-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .side-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 280px;
+            background: white;
+            z-index: 100;
+            transform: translateX(-100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 40px;
+        }
+
+        .side-menu.open {
+            transform: translateX(0);
+        }
+
+        .menu-item {
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+            font-weight: 600;
+            color: var(--dark);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Animación Voz */
+        .voice-wave {
+            position: absolute;
+            right: 20px;
+            display: flex;
+            gap: 4px;
+            height: 20px;
+            align-items: center;
+            opacity: 0.5;
+        }
+
+        .wave-bar {
+            width: 4px;
+            background: white;
+            border-radius: 2px;
+            height: 5px;
+        }
+
+        .playing .wave-bar {
+            animation: musicAnim 0.8s infinite ease-in-out;
+            background: var(--theme-color);
+        }
+
+        .wave-bar:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+
+        .wave-bar:nth-child(3) {
+            animation-delay: 0.0s;
+        }
+
+        .wave-bar:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes musicAnim {
+
+            0%,
+            100% {
+                height: 5px;
+            }
+
+            50% {
+                height: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 1. LOGIN -->
+    <div id="screen-login" class="screen active">
+        <div class="login-card">
+            <h1 style="font-size: 2.5rem; margin-bottom: 10px;">BlueMind</h1>
+            <p style="opacity: 0.8; margin-bottom: 30px;">Tu compañero emocional</p>
+            <label class="avatar-uploader">
+                <img id="login-avatar" src="https://cdn-icons-png.flaticon.com/512/847/847969.png">
+                <input type="file" accept="image/*" onchange="loadAvatar(this)" style="display:none">
+                <div
+                    style="position:absolute; bottom:0; width:100%; background:rgba(0,0,0,0.5); font-size:10px; padding:2px;">
+                    CAMBIAR</div>
+            </label>
+            <input type="text" id="username" class="input-glass" placeholder="Tu nombre..." autocomplete="off">
+            <button class="btn-main" onclick="goToDashboard()">COMENZAR</button>
+        </div>
+    </div>
+
+    <!-- 2. DASHBOARD -->
+    <div id="screen-dashboard" class="screen">
+        <div class="header">
+            <span class="material-icons-round" style="font-size: 32px; cursor: pointer;"
+                onclick="toggleMenu()">menu</span>
+            <div class="user-pill" onclick="goToLogin()">
+                <span id="dash-name" style="font-weight: 700; font-size: 0.9rem;">Usuario</span>
+                <img id="dash-avatar" src="https://cdn-icons-png.flaticon.com/512/847/847969.png">
+            </div>
+        </div>
+        <div style="padding: 20px 25px;">
+            <h2 style="font-size: 2rem; margin-bottom: 5px;">Hola.</h2>
+            <p style="color: #64748b;">Pulsa (?) para saber más o la tarjeta para entrar.</p>
+        </div>
+        <div class="grid-emotions">
+            <!-- Tarjetas con Botón de Info -->
+            <div class="card" data-e="Felicidad" onclick="startImmersion('Felicidad', '#F59E0B')">
+                <div class="info-btn" onclick="showInfo(event, 'Felicidad')">?</div>
+                <span style="font-size:3.5rem">😊</span>
+                <h3>Felicidad</h3>
+            </div>
+            <div class="card" data-e="Enojo" onclick="startImmersion('Enojo', '#EF4444')">
+                <div class="info-btn" onclick="showInfo(event, 'Enojo')">?</div>
+                <span style="font-size:3.5rem">😡</span>
+                <h3>Enojo</h3>
+            </div>
+            <div class="card" data-e="Tristeza" onclick="startImmersion('Tristeza', '#3B82F6')">
+                <div class="info-btn" onclick="showInfo(event, 'Tristeza')">?</div>
+                <span style="font-size:3.5rem">😢</span>
+                <h3>Tristeza</h3>
+            </div>
+            <div class="card" data-e="Ansiedad" onclick="startImmersion('Ansiedad', '#8B5CF6')">
+                <div class="info-btn" onclick="showInfo(event, 'Ansiedad')">?</div>
+                <span style="font-size:3.5rem">😰</span>
+                <h3>Ansiedad</h3>
+            </div>
+            <div class="card" data-e="Estrés" onclick="startImmersion('Estrés', '#14B8A6')">
+                <div class="info-btn" onclick="showInfo(event, 'Estrés')">?</div>
+                <span style="font-size:3.5rem">🤯</span>
+                <h3>Estrés</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE INFORMACIÓN -->
+    <div id="modal-info" class="modal-info-overlay" onclick="closeInfo()">
+        <div class="modal-info-card" onclick="event.stopPropagation()">
+            <h2 id="modal-title" class="modal-title" style="color: var(--theme-color)">Emoción</h2>
+
+            <div class="modal-subtitle">¿Por qué sucede?</div>
+            <p id="modal-why" class="modal-text">Explicación biológica...</p>
+
+            <div class="modal-subtitle">¿Cómo se siente?</div>
+            <p id="modal-how" class="modal-text">Descripción física...</p>
+
+            <button class="close-modal-btn" onclick="closeInfo()">Entendido</button>
+        </div>
+    </div>
+
+    <!-- 3. INMERSIÓN -->
+    <div id="screen-immersion" class="screen">
+        <button class="back-btn" onclick="goBack()"><span class="material-icons-round">arrow_back</span></button>
+        <div class="immersion-header">
+            <div class="header-overlay"></div>
+            <img id="immersion-bg" class="immersion-img" src="">
+        </div>
+        <div class="immersion-content">
+            <div class="level-card">
+                <h2 id="emo-title" style="color: var(--theme-color); font-size: 2rem;">Emoción</h2>
+                <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                    <span style="font-size: 0.9rem; color: #94a3b8;">Intensidad</span>
+                    <span id="slider-val" style="font-size: 2rem; font-weight: 800;">1</span>
+                </div>
+                <input type="range" id="slider" min="1" max="10" value="1" oninput="updateUI()"
+                    onchange="generateUniqueContent()">
+            </div>
+
+            <div class="audio-player-box">
+                <button class="play-btn" id="play-btn" onclick="toggleHybridAudio()">
+                    <span class="material-icons-round">record_voice_over</span>
+                </button>
+                <div style="flex: 1;">
+                    <div style="font-size: 0.8rem; opacity: 0.7; letter-spacing: 1px;">GUÍA DE VOZ + AMBIENTE</div>
+                    <div id="audio-status" style="font-weight: 700;">Toca para escuchar</div>
+                </div>
+                <div id="voice-wave" class="voice-wave">
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                </div>
+            </div>
+
+            <a id="video-link" href="#" target="_blank" class="video-btn">VER VIDEO DE AYUDA</a>
+        </div>
+    </div>
+
+    <!-- MENÚ -->
+    <div class="menu-overlay" id="menu-overlay" onclick="toggleMenu()"></div>
+    <div class="side-menu" id="side-menu">
+        <h2 style="margin-bottom: 30px;">Menú</h2>
+        <div class="menu-item" onclick="goToLogin()">Perfil</div>
+        <div class="menu-item" onclick="goBack()">Inicio</div>
+        <div class="menu-item" style="color: #EF4444;" onclick="location.reload()">Salir</div>
+    </div>
+
+    <!-- AUDIO ELEMENT -->
+    <audio id="ambient-audio" loop crossorigin="anonymous"></audio>
+
+    <script>
+        // --- 1. BASE DE DATOS EDUCATIVA ---
+        const emotionInfo = {
+            'Felicidad': {
+                why: "Tu cerebro libera un cóctel químico de dopamina (placer), serotonina (bienestar) y oxitocina (conexión). Ocurre cuando satisfaces necesidades, alcanzas metas o conectas con otros.",
+                how: "Sientes ligereza física, tendencia a sonreír involuntariamente, expansión en el pecho y un aumento de energía disponible para compartir o crear."
+            },
+            'Enojo': {
+                why: "Es una respuesta de defensa ante una amenaza, injusticia o frustración. Tu amígdala activa la respuesta de 'lucha', liberando adrenalina para preparar tus músculos.",
+                how: "Aumento del ritmo cardíaco, calor en la cara o manos, tensión muscular (especialmente mandíbula y puños) y un impulso de acción inmediata."
+            },
+            'Tristeza': {
+                why: "Es la forma que tiene tu cuerpo de procesar una pérdida o decepción. Disminuye tu energía para obligarte a detenerte, reflexionar y sanar.",
+                how: "Sensación de pesadez en el cuerpo, nudo en la garganta, ojos llorosos, falta de energía y deseo de aislamiento o refugio."
+            },
+            'Ansiedad': {
+                why: "Es el miedo orientado al futuro. Tu cerebro percibe un peligro potencial (real o imaginario) y te mantiene en estado de alerta máxima, sobrestimando la amenaza.",
+                how: "Respiración superficial, pensamientos acelerados, inquietud en las extremidades (temblor), sudoración fría y sensación de vacío en el estómago."
+            },
+            'Estrés': {
+                why: "Ocurre cuando las demandas de tu entorno superan tus recursos percibidos para afrontarlas. El cortisol se eleva para mantenerte funcionando a 'altas revoluciones'.",
+                how: "Tensión en hombros y cuello, dolor de cabeza, irritabilidad, dificultad para concentrarse y sensación de estar abrumado por el tiempo."
+            }
+        };
+
+        // --- 2. CONTENIDO (CONSEJOS OCULTOS) ---
+        const tipsLibrary = {
+            'Felicidad': ["¡Qué bien te ves sonriendo! Guarda esta sensación.", "Eres luz y mereces toda esta alegría.", "Comparte tu felicidad, se multiplicará.", "Agradece por estar aquí y ahora.", "Usa esta energía para crear algo hermoso."],
+            'Enojo': ["Siento tu fuego. Inhala profundo y suelta.", "No reacciones ahora. Eres dueño de tu paz.", "Imagina que eres una montaña inamovible.", "Deja que la frescura del agua te calme.", "Cuenta hasta diez. Recupera tu poder."],
+            'Tristeza': ["Está bien no estar bien. Abrázate fuerte.", "Llorar limpia el alma para que salga el sol.", "Eres valioso. Este dolor es una nube pasajera.", "Respira suave. Mañana será más amable.", "Tu sensibilidad es tu gran poder."],
+            'Ansiedad': ["Pon los pies en la tierra. Estás a salvo.", "Nombra 3 cosas que veas ahora.", "Inhala calma... Exhala prisa.", "Tu respiración es tu ancla segura.", "Suelta la mandíbula. Baja los hombros."],
+            'Estrés': ["Suelta el peso del mundo. Prioriza tu paz.", "Haz una sola cosa a la vez.", "Cierra los ojos. El mundo puede esperar.", "Deja salir la tensión acumulada.", "Eres capaz de manejar esto con calma."]
+        };
+
+        const bgIds = ["1470252649378-9c29740c9fa8", "1441974231531-c6227db76b6e", "1518057111178-44a106bad636", "1507525428034-b723cf961d3e", "1472653431158-6364773b2a56"];
+
+        const audioLibrary = {
+            'Felicidad': { low: "https://upload.wikimedia.org/wikipedia/commons/4/43/Dawn_chorus_in_a_suburban_garden_in_spring.ogg", mid: "https://upload.wikimedia.org/wikipedia/commons/6/69/River_stream_sound_effect.ogg", high: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Ocean_Waves.ogg" },
+            'Enojo': { low: "https://upload.wikimedia.org/wikipedia/commons/6/69/River_stream_sound_effect.ogg", mid: "https://upload.wikimedia.org/wikipedia/commons/b/bd/Rain_sounds.ogg", high: "https://upload.wikimedia.org/wikipedia/commons/2/23/Thunder_and_rain.ogg" },
+            'Tristeza': { low: "https://upload.wikimedia.org/wikipedia/commons/b/bd/Rain_sounds.ogg", mid: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Ocean_Waves.ogg", high: "https://upload.wikimedia.org/wikipedia/commons/4/43/Dawn_chorus_in_a_suburban_garden_in_spring.ogg" },
+            'Ansiedad': { low: "https://upload.wikimedia.org/wikipedia/commons/4/43/Dawn_chorus_in_a_suburban_garden_in_spring.ogg", mid: "https://upload.wikimedia.org/wikipedia/commons/6/69/River_stream_sound_effect.ogg", high: "https://upload.wikimedia.org/wikipedia/commons/b/bd/Rain_sounds.ogg" },
+            'Estrés': { low: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Ocean_Waves.ogg", mid: "https://upload.wikimedia.org/wikipedia/commons/6/69/River_stream_sound_effect.ogg", high: "https://upload.wikimedia.org/wikipedia/commons/b/bd/Rain_sounds.ogg" }
+        };
+
+        let currentEmo = "";
+        let currentTip = "";
+        const ambientPlayer = document.getElementById('ambient-audio');
+        let isSpeaking = false;
+
+        // --- FUNCIONES ---
+        function loadAvatar(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const src = e.target.result;
+                    document.getElementById('login-avatar').src = src;
+                    document.getElementById('dash-avatar').src = src;
+                    localStorage.setItem('userAvatar', src);
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function goToDashboard() {
+            const name = document.getElementById('username').value || "Amigo";
+            document.getElementById('dash-name').innerText = name;
+            localStorage.setItem('userName', name);
+            switchScreen('screen-login', 'screen-dashboard');
+        }
+
+        function goToLogin() { toggleMenu(false); switchScreen('screen-dashboard', 'screen-login'); }
+
+        window.onload = () => {
+            if (localStorage.getItem('userName')) {
+                document.getElementById('dash-name').innerText = localStorage.getItem('userName');
+                if (localStorage.getItem('userAvatar')) {
+                    document.getElementById('login-avatar').src = localStorage.getItem('userAvatar');
+                    document.getElementById('dash-avatar').src = localStorage.getItem('userAvatar');
+                }
+                switchScreen('screen-login', 'screen-dashboard');
+            }
+            window.speechSynthesis.cancel();
+        };
+
+        function switchScreen(from, to) {
+            document.getElementById(from).classList.remove('active');
+            document.getElementById(to).classList.add('active');
+        }
+
+        function toggleMenu(forceClose) {
+            const menu = document.getElementById('side-menu');
+            const overlay = document.getElementById('menu-overlay');
+            if (forceClose === false || menu.classList.contains('open')) {
+                menu.classList.remove('open'); overlay.classList.remove('open');
+            } else {
+                menu.classList.add('open'); overlay.classList.add('open');
+            }
+        }
+
+        function goBack() { stopHybridAudio(); switchScreen('screen-immersion', 'screen-dashboard'); }
+
+        // --- MODAL INFO ---
+        function showInfo(event, emo) {
+            event.stopPropagation(); // Evita entrar a la inmersión
+            const data = emotionInfo[emo];
+            document.getElementById('modal-title').innerText = emo;
+            document.getElementById('modal-title').style.color = getThemeColor(emo);
+            document.getElementById('modal-why').innerText = data.why;
+            document.getElementById('modal-how').innerText = data.how;
+            document.getElementById('modal-info').classList.add('open');
+        }
+
+        function closeInfo() { document.getElementById('modal-info').classList.remove('open'); }
+
+        function getThemeColor(emo) {
+            const colors = { 'Felicidad': '#F59E0B', 'Enojo': '#EF4444', 'Tristeza': '#3B82F6', 'Ansiedad': '#8B5CF6', 'Estrés': '#14B8A6' };
+            return colors[emo] || '#3B82F6';
+        }
+
+        // --- INMERSIÓN ---
+        function startImmersion(emo, color) {
+            currentEmo = emo;
+            document.documentElement.style.setProperty('--theme-color', color);
+            document.getElementById('emo-title').innerText = emo;
+            document.getElementById('slider').value = 1;
+            updateUI();
+            generateUniqueContent();
+            switchScreen('screen-dashboard', 'screen-immersion');
+        }
+
+        function updateUI() { document.getElementById('slider-val').innerText = document.getElementById('slider').value; }
+
+        function generateUniqueContent() {
+            const level = parseInt(document.getElementById('slider').value);
+
+            const list = tipsLibrary[currentEmo] || tipsLibrary['Felicidad'];
+            currentTip = list[(level - 1) % list.length]; // Guardar texto para voz
+
+            const imgIdx = (level + currentEmo.length) % bgIds.length;
+            document.getElementById('immersion-bg').src = `https://images.unsplash.com/photo-${bgIds[imgIdx]}?auto=format&fit=crop&w=800&q=80`;
+
+            const audioData = getAmbientAudio(currentEmo, level);
+            if (!ambientPlayer.src.includes(audioData)) {
+                const wasPlaying = isSpeaking;
+                ambientPlayer.src = audioData;
+                if (wasPlaying) ambientPlayer.play().catch(e => console.log("Play error", e));
+            }
+
+            const q = `meditacion guiada para ${currentEmo} nivel ${level}`;
+            document.getElementById('video-link').href = `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`;
+
+            if (isSpeaking) { window.speechSynthesis.cancel(); playVoiceOnly(); }
+        }
+
+        function getAmbientAudio(emotion, level) {
+            let category = 'mid';
+            if (level <= 3) category = 'low'; else if (level >= 8) category = 'high';
+            return audioLibrary[emotion][category];
+        }
+
+        // --- AUDIO ENGINE ---
+        function toggleHybridAudio() {
+            if (isSpeaking) stopHybridAudio(); else playHybridAudio();
+        }
+
+        function playHybridAudio() {
+            const btn = document.getElementById('play-btn');
+            const wave = document.getElementById('voice-wave');
+            const status = document.getElementById('audio-status');
+
+            ambientPlayer.volume = 0.2;
+            ambientPlayer.play().catch(e => console.log("Audio play error"));
+
+            playVoiceOnly();
+
+            isSpeaking = true;
+            btn.innerHTML = '<span class="material-icons-round">stop</span>';
+            wave.classList.add('playing');
+            status.innerText = "Escuchando...";
+        }
+
+        function playVoiceOnly() {
+            const utterance = new SpeechSynthesisUtterance(currentTip);
+            utterance.lang = 'es-ES'; utterance.rate = 0.9; utterance.pitch = 1;
+            utterance.onend = () => { stopHybridAudio(); };
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function stopHybridAudio() {
+            window.speechSynthesis.cancel();
+            fadeOutAmbient();
+            isSpeaking = false;
+            document.getElementById('play-btn').innerHTML = '<span class="material-icons-round">record_voice_over</span>';
+            document.getElementById('voice-wave').classList.remove('playing');
+            document.getElementById('audio-status').innerText = "Toca para escuchar";
+        }
+
+        function fadeOutAmbient() {
+            let vol = ambientPlayer.volume;
+            const fade = setInterval(() => {
+                if (vol > 0.05) { vol -= 0.05; ambientPlayer.volume = vol; }
+                else { clearInterval(fade); ambientPlayer.pause(); }
+            }, 200);
+        }
+    </script>
+</body>
+
+</html>
